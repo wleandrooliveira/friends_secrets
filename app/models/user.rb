@@ -1,20 +1,6 @@
-class Member < ApplicationRecord
-  belongs_to :campaign
-  after_save :set_campaign_pending
-  validates :name, :email, :campaign, presence: true
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable
 
-  def set_pixel
-    self.open = false
-    self.token = loop do
-      random_token = SecureRandom.urlsafe_base64(nil, false)
-      break random_token unless Member.exists?(token: random_token)
-    end
-    self.save!
-  end
-
-  protected
-
-  def set_campaign_pending
-    self.campaign.update(status: :pending)
-  end
+  has_many :campaigns, dependent: :destroy
 end
